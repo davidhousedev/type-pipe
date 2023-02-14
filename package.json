@@ -1,0 +1,19 @@
+{
+  "name": "type-pipe",
+  "version": "0.0.1",
+  "description": "Pipes with types",
+  "author": "David House",
+  "license": "MIT",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsup index.ts --format cjs,esm --dts",
+    "lint": "tsc"
+  },
+  "devDependencies": {
+    "@changesets/cli": "^2.26.0",
+    "tsup": "^6.6.2",
+    "typescript": "^4.9.5"
+  }
+}
