@@ -1,18 +1,18 @@
 import { describe, it, expect } from "vitest";
-import pipe from "./index";
+import pipe from "./pipe";
 
 const add = (num1: number, num2: number) => num1 + num2;
 
 describe("pipe", () => {
   it("can pass a wrapped value into a piped function", () => {
-    expect(pipe(() => 2).pipe(add, 2).ok).toEqual(4);
+    expect(pipe(() => 2).pipe(add, 2).result).toEqual(4);
   });
 
   it("can pipe a value multiple times", () => {
     expect(
       pipe(() => 2)
         .pipe(add, 1)
-        .pipe(add, 2).ok
+        .pipe(add, 2).result
     ).toEqual(5);
   });
 
@@ -20,19 +20,26 @@ describe("pipe", () => {
     expect(
       pipe(() => "2")
         .pipe(parseInt)
-        .pipe(add, 2).ok
+        .pipe(add, 2).result
     ).toEqual(4);
   });
 
+  it("can convert data types multiple times across pipes", () => {
+    expect(
+      pipe(() => "4")
+        .pipe(parseInt)
+        .pipe(add, 2)
+        .pipe((num: number) => num.toString()).result
+    ).toEqual("6");
+  });
+
   it("handles thrown errors", () => {
-    const result = pipe(() => {
+    const { error } = pipe(() => {
       throw new Error("Boom!");
     });
 
-    if (!result.ok) {
-      expect(result.error).toBeInstanceOf("Error");
-      expect((result.error as Error).message).toEqual("Boom!");
-    }
+    expect(error).toBeInstanceOf(Error);
+    expect((error as Error).message).toEqual("Boom!");
   });
 
   it("can be used with destructuring", () => {
@@ -52,17 +59,24 @@ describe("pipe", () => {
 });
 
 // Type tests
+() => {
+  // Should require an int, given the first pipe
+  //@ts-expect-error
+  pipe(() => 2).pipe((foo: string) => {
+    console.log(foo);
+    return foo;
+  });
 
-// it doesn't allow you to chain a fn expecting a string off of
-// a function that returns an int
-//@ts-expect-error
-pipe(() => 2).pipe((foo: string) => {
-  console.log(foo);
-  return foo;
-});
+  // Should require a string, given the first pipe
+  //@ts-expect-error
+  pipe(() => "2").pipe((foo: number) => {
+    console.log(foo);
+    return foo;
+  });
 
-//@ts-expect-error
-pipe(() => "2").pipe((foo: number) => {
-  console.log(foo);
-  return foo;
-});
+  pipe(() => "2")
+    .pipe(parseInt)
+    // Should require an int, given the prior pipe
+    //@ts-expect-error
+    .pipe((foo: string) => console.log(foo));
+};
