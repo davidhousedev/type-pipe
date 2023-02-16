@@ -31,7 +31,22 @@ describe("pipe", () => {
 
     if (!result.ok) {
       expect(result.error).toBeInstanceOf("Error");
-      expect(result.error.message).toEqual("Boom!");
+      expect((result.error as Error).message).toEqual("Boom!");
+    }
+  });
+
+  it("can be used with destructuring", () => {
+    const { ok, error, state, result } = pipe(() => 2);
+    // type tests
+    if (state === "ok") {
+      const _ok: true = ok;
+      const _result: number = result;
+      const _error: undefined = error;
+    } else {
+      const _state: "error" = state;
+      const _ok: false = ok;
+      const _result: undefined = result;
+      const _error: unknown = error;
     }
   });
 });
@@ -41,4 +56,13 @@ describe("pipe", () => {
 // it doesn't allow you to chain a fn expecting a string off of
 // a function that returns an int
 //@ts-expect-error
-pipe(() => 2).pipe((foo: string) => console.log(foo));
+pipe(() => 2).pipe((foo: string) => {
+  console.log(foo);
+  return foo;
+});
+
+//@ts-expect-error
+pipe(() => "2").pipe((foo: number) => {
+  console.log(foo);
+  return foo;
+});
