@@ -17,6 +17,8 @@ type-pipe contains a type-safe `pipe()` function implementation, because you jus
 
 Contributions welcome! Feel free to fork the repo and open PRs.
 
+Contributions will not be accepted without unit tests ❤️.
+
 1. Fork the repo
 2. Complete your change
 3. Create a changeset with `pnpm run changeset` describing your change
